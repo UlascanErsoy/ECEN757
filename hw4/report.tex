@@ -1,0 +1,367 @@
+\documentclass{article}
+
+
+% if you need to pass options to natbib, use, e.g.:
+%     \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_2023
+
+
+% ready for submission
+\usepackage[final]{neurips_2023}
+
+
+% to compile a preprint version, e.g., for submission to arXiv, add add the
+% [preprint] option:
+%     \usepackage[preprint]{neurips_2023}
+
+
+% to compile a camera-ready version, add the [final] option, e.g.:
+%     \usepackage[final]{neurips_2023}
+
+
+% to avoid loading the natbib package, add option nonatbib:
+%    \usepackage[nonatbib]{neurips_2023}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{amsmath}
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subfig}
+\usepackage[most]{tcolorbox}
+\usepackage{multicol}
+
+\bibliographystyle{plainnat}
+
+
+\title{ECEN 757 | Homework 4}
+
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+\author{%
+  Muhammed U. Ersoy\\
+  M.S. ECEN Student\\
+  Texas A\&M University\\
+  \texttt{mue@tamu.edu} \\
+ }
+
+\begin{document}
+\maketitle
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Problem 16.4]
+    The operation create inserts a new bank account at a branch. The transactions T and U
+        are defined as follows:
+    \begin{verbatim}
+        T: aBranch.create("Z");
+        U: z.deposit(10); z.deposit(20).
+    \end{verbatim}
+    Assume that Z does not yet exist. Assume also that the deposit operation does nothing if
+    the account given as the argument does not exist. Consider the following interleaving of
+    transactions T and U:
+
+    \begin{table}[H]
+    \centering
+    \begin{tabular}{ll}
+    T                                        & U                                   \\ \hline
+    \multicolumn{1}{c}{}                   & \multicolumn{1}{c}{z.deposit(10);} \\
+    \multicolumn{1}{c}{aBranch.create(Z);} & \multicolumn{1}{c}{}               \\
+                                             & z.deposit(20);                      \\ \hline
+    \end{tabular}
+    \end{table}
+    State the balance of Z after their execution in this order. Are these consistent with
+    serially equivalent executions of T and U?
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=green!5!white,colframe=green!75!black,title=Answer 16.4]
+The balance of $Z$ would be $\$20$. When $U$ first executes deposit on $Z$, the branch doesn't exist thus the operation has no effect.
+Then the branch is created by $T$, and $U$ deposits $\$20$.
+
+These are not consistent with a serially equivalent operation. For example if we look at $T \rightarrow U$;
+
+\begin{multicols}{2}
+    \begin{table}[H]
+    \centering
+    \begin{tabular}{ll}
+    T                                        & U                                   \\ \hline
+    \multicolumn{1}{c}{aBranch.create(Z);}                   & \multicolumn{1}{c}{} \\
+    \multicolumn{1}{c}{} & \multicolumn{1}{c}{z.deposit(10);}               \\
+                                             & z.deposit(20);                      \\ \hline
+    \end{tabular}
+    \end{table}
+
+    \begin{table}[H]
+    \centering
+    \begin{tabular}{ll}
+    T                                        & U                                   \\ \hline
+    \multicolumn{1}{c}{}                   & \multicolumn{1}{c}{z.deposit(10);} \\
+    \multicolumn{1}{c}{} & \multicolumn{1}{c}{z.deposit(20);}               \\
+                        aBranch.create(Z);&                      \\ \hline
+    \end{tabular}
+    \end{table}
+
+\end{multicols}
+
+In the first case the branch is created, and both deposits go through. Our final state would have $\$30$ in the branch. In the other case of $U \rightarrow T$ the branch would not exist
+when deposits go through, and the final amount would be $\$0$. Thusfort the transaction outlined is not
+serially equivalent.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Problem 16.9]
+    The transactions T and U at the server in Exercise 16.8 are defined as follows:
+    \begin{verbatim}
+        T: x = read(i); write(j, 44);
+        U: write(i, 55); write(j, 66);
+    \end{verbatim}
+    Initial values of $a_i$ and $a_j$ are 10 and 20, respectively. Which of the following
+    interleavings are serially equivalent, and which could occur with two-phase locking?
+    \begin{multicols}{2}
+        \begin{enumerate}(a)
+        \begin{table}[H]
+        \begin{tabular}{ll}
+                    T                              & U                                \\ \hline
+            \multicolumn{1}{l}{x=read(i);} & \multicolumn{1}{l}{}             \\
+            \multicolumn{1}{l}{}           & \multicolumn{1}{l}{write(i,55);} \\
+            write(j,44);                   &                                  \\
+                                           & write(j,66);    
+        \end{tabular}
+        \end{table}
+
+        \end{enumerate}
+        \begin{enumerate}(c)
+            \begin{table}[H]
+            \begin{tabular}{ll}
+            T                                        & U                                   \\ \hline
+            \multicolumn{1}{l}{} & \multicolumn{1}{l}{write(i,55);} \\
+            \multicolumn{1}{l}{} & \multicolumn{1}{l}{write(j,66);} \\
+            x=read(i);           &                                  \\
+            write(j,44);         &                      \end{tabular}
+            \end{table}
+        \end{enumerate}
+        \begin{enumerate}(b)
+            \begin{table}[H]
+            \begin{tabular}{ll}
+            T                                        & U                                   \\ \hline
+            \multicolumn{1}{l}{x=read(i);}   & \multicolumn{1}{l}{} \\
+            \multicolumn{1}{l}{write(j,44);} & \multicolumn{1}{l}{} \\
+                                             & write(i,55);         \\
+                                             & write(j,66);                    \end{tabular}
+            \end{table}
+        \end{enumerate}
+        \begin{enumerate}(d)
+            \begin{table}[H]
+            \begin{tabular}{ll}
+            T                                        & U                                   \\ \hline
+            \multicolumn{1}{l}{}           & \multicolumn{1}{l}{write(i,55);} \\
+            \multicolumn{1}{l}{x=read(i);} & \multicolumn{1}{l}{}             \\
+                                           & write(j,66);                     \\
+            write(j,44);                   &                     \end{tabular}
+            \end{table}
+        \end{enumerate}
+
+    \end{multicols}
+\end{tcolorbox}
+\begin{tcolorbox}[colback=green!5!white,colframe=green!75!black,title=Answer 16.9]
+(b) and (c) are serially equivalent since in both cases one of the transactions (either $U$ or $T$) accesses all necessary resources before the other one.
+\\
+(a) and (d) could occur with two-phase locking since all necessary conflicting lock requests are in the same order. 
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Problem 16.10]
+Consider a relaxation of two-phase locks in which read-only transactions can release
+read locks early. Would a read-only transaction have consistent retrievals? Would the
+objects become inconsistent? Illustrate your answer with the following transactions T
+and U at the server in Exercise 16.8:
+    \begin{verbatim}
+        T: x = read (i); y= read(j);
+        U: write(i, 55); write(j, 66);
+    \end{verbatim}
+in which initial values of $a_i$ and $a_j$ are 10 and 20.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=green!5!white,colframe=green!75!black,title=Answer 16.10]
+    The reads could become inconsistent. If the process reads one of the values and releases the lock, 
+    another process could write, and if the original process performs a read on another value again, the
+    state will become inconsistent.
+    \begin{table}[H]
+    \centering
+    \begin{tabular}{ll}
+    T                                        & U                                   \\ \hline
+    \multicolumn{1}{l}{x=read(i);}           & \multicolumn{1}{l}{} \\
+    \multicolumn{1}{l}{//T releases lock} & \multicolumn{1}{l}{}             \\
+    \multicolumn{1}{l}{} & \multicolumn{1}{l}{write(i, 55);}             \\
+    \multicolumn{1}{l}{} & \multicolumn{1}{l}{write(j, 66);}             \\
+                       y=read(j);            &                     \\
+    \end{tabular}
+    \end{table}
+In this case $T$ read $x$, then released the lock prematurely. $U$ wrote to both $i$, and $j$ because there
+was no lock on them. $T$ was not aware of this. Thus the values of $x$ and $y$ ended up being inconsistent.
+\end{tcolorbox}
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Problem 16.16]
+Consider optimistic concurrency control as applied to the transactions T and U defined
+in Exercise 16.9. Suppose that transactions T and U are active at the same time as one
+another. Describe the outcome in each of the following cases:
+\begin{enumerate}i) T’s request to commit comes first and backward validation is used.
+\end{enumerate}
+\begin{enumerate}ii) U’s request to commit comes first and backward validation is used.
+\end{enumerate}
+\begin{enumerate}iii) T’s request to commit comes first and forward validation is used.
+\end{enumerate}
+\begin{enumerate}iv) U’s request to commit comes first and forward validation is used.
+\end{enumerate}
+
+In each case describe the sequence in which the operations of T and U are performed,
+remembering that writes are not carried out until after validation.
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=green!5!white,colframe=green!75!black,title=Answer 16.16]
+    \begin{enumerate}i)
+        In backwards validation, T's readset is compared with U's write set. Since U has not committed
+        by this point all options are valid. 
+    \end{enumerate}
+    \begin{enumerate}ii)
+        In this case U has committed thus the transaction is \textbf not valid.
+    \end{enumerate}
+    \begin{enumerate}iii)
+        T's write set is compared with the reads of with the reads of U. Since U has not reads this is valid.
+        Then U's write set would be compared with other active reads. Since T was already committed there are no 
+        active requests. Thus this is valid.
+    \end{enumerate}
+    \begin{enumerate}iv)
+        U's write set is compared with T's reads. Since there is an overlap this \textbf fails.
+    \end{enumerate}
+    
+    \textit{Parts of this answer were taken from \citet{Kontogiannis}, I was comparing my original answer and it seemed incomplete so I amended based on this solution manual.}
+\end{tcolorbox}
+
+\begin{tcolorbox}[colback=blue!5!white,colframe=blue!75!black,title=Problem 16.19]
+        Consider the use of timestamp ordering with each of the example interleavings of
+        transactions T and U in Exercise 16.9. Initial values of $a_i$ and $a_j$ are 10 and 20,
+        respectively, and initial read and write timestamps are $t_0$. Assume that each transaction
+        opens and obtains a timestamp just before its first operation; for example, in (a) T and U
+        get timestamps $t_1$ and $t_2$, respectively, where $t_0 < t_1 < t_2.$ Describe in order of increasing
+        time the effects of each operation of T and U. For each operation, state the following:
+        \begin{enumerate}i) whether the operation may proceed according to the write or read rule;
+        \end{enumerate}
+        \begin{enumerate}ii) when timestamps are assigned to transactions or objects;
+        \end{enumerate}
+        \begin{enumerate}iii) when tentative objects are created and when their values are set.
+        \end{enumerate}
+\end{tcolorbox}
+
+\begin{enumerate}a)\\
+        $a_i = 10$ , $T_{write} = \max$, $T_{read} = t_0$\\
+        $a_j = 10$ , $T_{write} = \max$, $T_{read} = t_0$\\
+        \\
+        T: x= read(i);//timestamp = $t_1$\\
+        read_rule: $t_1 > T_{write}$ on committed version ($t_0$) and $D_{selected}$ is committed:\\
+        $x = 10$ is read, and $\max T_{read} (a_i) = t_1$\\
+        \\
+        U: write(i,55); //timestamp = $t_2$\\
+        write rule: $t_2 \geq \max T_{read} = t_1$ and $t_2$ > write timestamp on committed version.\\
+        allows write on tentative version $a_i = 55$. $T_{write} = t_2$\\
+        \\
+        T: write(j,44);
+        write rule: $t_1 \geq \max T_{read} = t_0$ and $t_1$ > write timestamp on committed version = $t_0$\\
+        allows tentative write $a_j = 44$; update timestamp of $a_j$ to $t_1$\\
+        \\
+        U: write(j,66);\\
+        write rule: $t_1 \geq \max T_{read} = t_0$ and $t_2$ > write timestamp on committed version = $t_0$\\
+        tentative version $a_j = 66$; timestamp = $t_2$\\
+        \\
+        T commits first $\rightarrow a_j = 44$ $T_{write} = t_1$, $T_{read} = t_0$\\
+        U commits second $\rightarrow a_i = 55$ $T_{write} = t_2$, $T_{read} = t_1$\\
+        U commits second $\rightarrow a_j = 66$ $T_{write} = t_2$, $T_{read} = t_0$
+    \end{enumerate}
+    \begin{enumerate}b)\\
+        T: x= read(i);//timestamp = $t_1$\\
+        read_rule: $t_1 > T_{write}$ on committed version ($t_0$) and $D_{selected}$ is committed:\\
+        $x = 10$ is read, and $\max T_{read} (a_i) = t_1$\\
+        \\
+        T: write(j,44);
+        write rule: $t_1 \geq \max T_{read} = t_0$ and $t_1$ > write timestamp on committed version = $t_0$\\
+        allows tentative write $a_j = 44$; update timestamp of $a_j$ to $t_1$\\
+        \\
+        U: write(i,55); //timestamp = $t_2$\\
+        write rule: $t_2 \geq \max T_{read} = t_1$ and $t_2$ > write timestamp on committed version = $t_0$\\
+        allows write on tentative version $a_i = 55$. $T_{write} = t_2$\\
+        \\
+        U: write(j,66);\\
+        write rule: $t_1 \geq \max T_{read} = t_0$ and $t_2$ > write timestamp on committed version = $t_0$\\
+        tentative version $a_j = 66$; timestamp = $t_2$\\
+        \\
+        T commits first $\rightarrow a_j = 44$ $T_{write} = t_1$, $T_{read} = t_0$\\
+        U commits second $\rightarrow a_i = 55$ $T_{write} = t_2$, $T_{read} = t_1$\\
+        U commits second $\rightarrow a_j = 66$ $T_{write} = t_2$, $T_{read} = t_0$
+    \end{enumerate}
+
+    \begin{enumerate}c)\\
+        U: write(i,55); //timestamp = $t_2$\\
+        write rule: $t_2 \geq \max T_{read} = t_1$ and $t_2$ > write timestamp on committed version = $t_0$\\
+        allows write on tentative version $a_i = 55$. $T_{write} = t_1$\\
+        \\
+        U: write(j,66);\\
+        write rule: $t_1 \geq \max T_{read} = t_0$ and $t_2$ > write timestamp on committed version = $t_0$\\
+        tentative version $a_j = 66$; timestamp = $t_1$\\
+        \\
+        T: x= read(i);//timestamp = $t_2$\\
+        read_rule: $t_1 > T_{write}$ on committed version ($t_0$) and $D_{selected}$ is committed:\\
+        Since U is not committed yet, T has to wait\\
+        \\
+        U commits $\rightarrow a_i = 55$ $T_{write} = t_1$, $T_{read} = t_0$\\
+        U commits $\rightarrow a_j = 66$ $T_{write} = t_1$, $T_{read} = t_0$\\
+        T continues the read and $x = 55$\\
+        \\
+        T: write(j,44);
+        write rule: $t_2 \geq \max T_{read} = t_0$ and $t_1$ > write timestamp on committed version = $t_0$\\
+        allows tentative write $a_j = 44$; update timestamp of $a_j$ to $t_2$\\
+        \\
+        T commits second $\rightarrow a_j = 44$ $T_{write} = t_2$, $\max T_{read} = t_0$\\
+        Final state of $a_i = 55$, $T_{write} = t_1$, $\max T_{read} = t_2$\\
+    \end{enumerate}
+
+    \begin{enumerate}d)\\
+        U: write(i,55); //timestamp = $t_2$\\
+        write rule: $t_2 \geq \max T_{read} = t_1$ and $t_2$ > write timestamp on committed version = $t_0$\\
+        allows write on tentative version $a_i = 55$. $T_{write} = t_1$\\
+        \\
+        T: x= read(i);//timestamp = $t_2$\\
+        read_rule: $t_1 > T_{write}$ on committed version ($t_0$) and $D_{selected}$ is committed:\\
+        Since U is not committed yet, T has to wait\\
+        \\
+        U: write(j,66);\\
+        write rule: $t_1 \geq \max T_{read} = t_0$ and $t_2$ > write timestamp on committed version = $t_0$\\
+        tentative version $a_j = 66$; timestamp = $t_1$\\
+        \\
+        U commits $\rightarrow a_i = 55$ $T_{write} = t_1$, $T_{read} = t_0$\\
+        U commits $\rightarrow a_j = 66$ $T_{write} = t_1$, $T_{read} = t_0$\\
+        T continues the read and $x = 55$\\
+        \\
+        T: write(j,44);
+        write rule: $t_2 \geq \max T_{read} = t_0$ and $t_1$ > write timestamp on committed version = $t_0$\\
+        allows tentative write $a_j = 44$; update timestamp of $a_j$ to $t_2$\\
+        \\
+        T commits second $\rightarrow a_j = 44$ $T_{write} = t_2$, $\max T_{read} = t_0$\\
+        Final state of $a_i = 55$, $T_{write} = t_1$, $\max T_{read} = t_2$\\
+
+    \end{enumerate}
+\\
+\\
+\textit{Parts of 16.19 were taken from \citet{Kontogiannis}, My original answer was incomplete compared to this, I amended it.}
+
+\bibliography{default}
+\end{document}
+
+
